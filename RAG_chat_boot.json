@@ -1,0 +1,452 @@
+{
+  "name": "RAG_chat_boot",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "value": "1mCUL4ZVjUCjOWLDJHuPH-RCb8Pug-kbo",
+          "mode": "list",
+          "cachedResultName": "Apple",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1mCUL4ZVjUCjOWLDJHuPH-RCb8Pug-kbo"
+        },
+        "event": "fileCreated",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "typeVersion": 1,
+      "position": [
+        -848,
+        -128
+      ],
+      "id": "105f7315-023b-44f0-bbaf-938f8891d29b",
+      "name": "Google Drive Trigger",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "uCq4hcUG5LHE6UXf",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -624,
+        -128
+      ],
+      "id": "8168d271-8393-4718-b9a2-bfb7c8e0d33e",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "uCq4hcUG5LHE6UXf",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "v2ragchatbot",
+          "mode": "list",
+          "cachedResultName": "v2ragchatbot"
+        },
+        "embeddingBatchSize": 1,
+        "options": {
+          "pineconeNamespace": "Apple"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.3,
+      "position": [
+        -432,
+        -128
+      ],
+      "id": "b9ea7fa6-854f-416b-b5c7-bb9523a064fd",
+      "name": "Pinecone Vector Store",
+      "credentials": {
+        "pineconeApi": {
+          "id": "XfWTtFY0AMWN1FTJ",
+          "name": "PineconeApi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "dataType": "binary",
+        "options": {
+          "metadata": {
+            "metadataValues": [
+              {
+                "name": "v2RAGchatbot",
+                "value": "={{ $json.name }}"
+              }
+            ]
+          }
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        -320,
+        96
+      ],
+      "id": "643d8f2c-ad83-490c-869e-a575f9351e25",
+      "name": "Default Data Loader"
+    },
+    {
+      "parameters": {
+        "model": "nomic-embed-text:latest"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOllama",
+      "typeVersion": 1,
+      "position": [
+        -544,
+        96
+      ],
+      "id": "7cea938f-8c50-43fc-b126-e632afb9948b",
+      "name": "Embeddings Ollama",
+      "credentials": {
+        "ollamaApi": {
+          "id": "49IOMP1aR3VbDXKF",
+          "name": "Ollama account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "# Knowledge Base",
+        "height": 448,
+        "width": 832,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -912,
+        -224
+      ],
+      "id": "e8ad9663-e2fc-4071-9170-ee927a4c600a",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "# RAG Chatbot",
+        "height": 784,
+        "width": 912
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        144,
+        -112
+      ],
+      "id": "dc0c74a0-1138-4f7e-a4e5-297c0c7b8422",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "model": "llama3.2:3b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        288,
+        192
+      ],
+      "id": "b78ec380-5711-42aa-80aa-cb6e552189fc",
+      "name": "Ollama Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "49IOMP1aR3VbDXKF",
+          "name": "Ollama account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 100
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        448,
+        176
+      ],
+      "id": "f095268a-1420-4a16-9991-caab413e791b",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "v2ragchatbot",
+          "mode": "list",
+          "cachedResultName": "v2ragchatbot"
+        },
+        "options": {
+          "pineconeNamespace": "Apple"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.3,
+      "position": [
+        416,
+        352
+      ],
+      "id": "71054046-6203-4596-9c52-fc18aaa8ce46",
+      "name": "Pinecone Vector Store1",
+      "credentials": {
+        "pineconeApi": {
+          "id": "XfWTtFY0AMWN1FTJ",
+          "name": "PineconeApi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "nomic-embed-text:latest"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOllama",
+      "typeVersion": 1,
+      "position": [
+        352,
+        544
+      ],
+      "id": "b986bcc7-07a5-47bb-bf95-fabac9355387",
+      "name": "Embeddings Ollama1",
+      "credentials": {
+        "ollamaApi": {
+          "id": "49IOMP1aR3VbDXKF",
+          "name": "Ollama account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "llama3.2:3b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        720,
+        336
+      ],
+      "id": "3df4d8dc-a896-4cac-877e-cd432ce1f488",
+      "name": "Ollama Chat Model1",
+      "credentials": {
+        "ollamaApi": {
+          "id": "49IOMP1aR3VbDXKF",
+          "name": "Ollama account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "You are an AI assistant specialized in analyzing Apple's quarterly financial reports. Your main goal is to answer questions accurately and precisely using the vector databeas, whch contains relevant Q4 reports.\n\nProvide only information that comes directly from hese reports or verified data. If the requested information is missing or unclear, explicitly state that there is nsufficient data.\n\nKeep responses concise and to the point. Include specific number and facts whenever possible, and cleary indicate whether the information is sourced from Q4.\n\nDeliver quick, reliable insights into Apple's quarterly financials without adding unnecessary details."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        480,
+        -32
+      ],
+      "id": "a39f4766-7735-464b-8832-57d394dd618b",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "description": "=Returns documents relates to Apple Q4 reports, including financials, outlook, margins, and all key details from th earnings reports."
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolVectorStore",
+      "typeVersion": 1.1,
+      "position": [
+        656,
+        192
+      ],
+      "id": "bc438f48-aa04-46dd-aa05-e649fa7abe82",
+      "name": "Answer questions with a vector store"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        208,
+        -48
+      ],
+      "id": "f15b91dc-6b44-4c0b-8e18-a5721ddb0593",
+      "name": "When chat message received",
+      "webhookId": "e4980688-e7a0-4899-97b2-a8e56bb11cc9"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Drive Trigger": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Ollama": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pinecone Vector Store1": {
+      "ai_vectorStore": [
+        [
+          {
+            "node": "Answer questions with a vector store",
+            "type": "ai_vectorStore",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Ollama1": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store1",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Answer questions with a vector store",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Answer questions with a vector store": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "4d50e8e0-80ca-4c22-98e1-332b8b4cf8f5",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e6f22c616cb4e96c1f044f6ba0bc4bd1f228df0e750c8f25184050778ccf33ee"
+  },
+  "id": "id3h9xGNtY2yQ4JQ",
+  "tags": [
+    {
+      "updatedAt": "2026-03-27T15:01:23.784Z",
+      "createdAt": "2026-03-27T15:01:23.784Z",
+      "id": "fFTs2DCBXvrMZyAN",
+      "name": "Activy"
+    }
+  ]
+}
