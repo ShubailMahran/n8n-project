@@ -1,0 +1,173 @@
+{
+  "name": "SmartLead Agen",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "b9a22984-d3b8-4bd4-b3a5-a7c11b773063",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=أنت مساعد مبيعات وتقني خبير. أريدك أن تكتب رسالة بريد إلكتروني مخصصة واحترافية جداً لشركة{{ $json.company_name }} .\n\nبناءً على موقعهم الإلكتروني {{ $json.website }} ومجال عملهم، صغ رسالة تعرض فيها خدماتي كمبرمج Backend متخصص في (PHP و Python و SQL).\n\nالنقاط التي يجب التركيز عليها في الرسالة:\n1. ابدأ بتحية مهنية واذكر اسم الشركة لتبين أن الرسالة مخصصة لهم وليست عشوائية.\n2. اذكر أنني أستطيع مساعدتهم في تطوير أنظمة Backend قوية، أتمتة العمليات، وربط قواعد البيانات بكفاءة عالية.\n3. بما أنني أهتم بالذكاء الاصطناعي (AI Agents)، اذكر باختصار أنني أستطيع دمج تقنيات الذكاء الاصطناعي لتحسين سير العمل لديهم.\n4. اجعل نبرة الصوت: احترافية، واثقة، ومختصرة.\n5. اطلب منهم في النهاية تحديد موعد لمكالمة قصيرة أو رد لمناقشة كيف يمكنني مساعدتهم.\n\nملاحظة: اكتب الرسالة باللغة العربية الفصحى البسيطة والمهنية.",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        416,
+        0
+      ],
+      "id": "27d2b525-b939-4c15-86e4-29dfcfe62e02",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "llama-3.3-70b-versatile",
+          "mode": "list",
+          "cachedResultName": "llama-3.3-70b-versatile"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        400,
+        192
+      ],
+      "id": "7211de2d-4ec7-4c4c-a99b-84cbb1a0dfe1",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "8DhFo4Ag9bkwRlMC",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "=example@gmail.com",
+        "subject": "تعاون تقني",
+        "emailType": "text",
+        "message": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        768,
+        16
+      ],
+      "id": "47bf3311-8110-4a82-a396-cd1b66fcc57f",
+      "name": "Send a message",
+      "webhookId": "c561c465-f931-4e60-a03c-a11cb016831e",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "k40oYAdF5REql26b",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1xJ8ckV3dFeHsG54npGYyTLdEo6-rOOuZHMJEFK8WFho",
+          "mode": "list",
+          "cachedResultName": "Prospects List",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1xJ8ckV3dFeHsG54npGYyTLdEo6-rOOuZHMJEFK8WFho/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "الورقة1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1xJ8ckV3dFeHsG54npGYyTLdEo6-rOOuZHMJEFK8WFho/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        208,
+        0
+      ],
+      "id": "ec66f609-2638-4b88-9cac-6b1c6db5d4f1",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "lWAlyqrMCw4YG1Xh",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "baa5a0fd-7897-45c0-90ad-b3e58012dd13",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "78df718bb34fde857d77cb7beed469614c1c9ff2441901d4fe2678f642e597e8"
+  },
+  "id": "s8ufInHPRU762r3W",
+  "tags": []
+}
