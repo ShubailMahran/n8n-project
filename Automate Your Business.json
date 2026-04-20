@@ -1,0 +1,295 @@
+{
+  "name": "Automate Your Business",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message",
+          "*"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "cf16e378-486a-4ad3-929b-02b8c4ae974d",
+      "name": "Telegram Trigger",
+      "webhookId": "efb3fff9-6f18-4c89-a898-c012e9ef49d6",
+      "credentials": {
+        "telegramApi": {
+          "id": "GYkzlM6cEAGStNai",
+          "name": "Telegram account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "llama-3.3-70b-versatile",
+          "mode": "list",
+          "cachedResultName": "llama-3.3-70b-versatile"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        80,
+        208
+      ],
+      "id": "f5ade7ba-03f6-4625-afce-e74db40bd359",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "8DhFo4Ag9bkwRlMC",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.message.text }}",
+        "contextWindowLength": 1000
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        224,
+        208
+      ],
+      "id": "04f95239-633a-4f33-a875-7e4f725bd7c3",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        528,
+        0
+      ],
+      "id": "f867db99-6281-4983-9c4b-4b40b90688d1",
+      "name": "Send a text message",
+      "webhookId": "caa35371-d57a-4cb4-8eee-999d473fc116",
+      "credentials": {
+        "telegramApi": {
+          "id": "GYkzlM6cEAGStNai",
+          "name": "Telegram account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "shubailmahran67@gmail.com",
+          "mode": "list",
+          "cachedResultName": "shubailmahran67@gmail.com"
+        },
+        "start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start', ``, 'string') }}",
+        "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End', ``, 'string') }}",
+        "additionalFields": {
+          "attendees": [
+            "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('attendees0_Attendees', ``, 'string') }}"
+          ],
+          "description": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Description', ``, 'string') }}",
+          "summary": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Summary', ``, 'string') }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        624,
+        256
+      ],
+      "id": "45912fac-cd9e-4fa6-bd68-02f6a01814dc",
+      "name": "Create an event in Google Calendar",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "KReY4so4E9OWiPbG",
+          "name": "Google Calendar OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('To', ``, 'string') }}",
+        "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', ``, 'string') }}",
+        "emailType": "text",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.2,
+      "position": [
+        512,
+        240
+      ],
+      "id": "9bd23be3-4822-492c-9227-3d459d9f4b26",
+      "name": "Employee Notification",
+      "webhookId": "c46eb293-eede-4a16-a960-dc5f75d66eae",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "k40oYAdF5REql26b",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.text }}",
+        "options": {
+          "systemMessage": "=You are an AI Scheduling Assistant responsible for booking appointments with employees listed in Google Sheets.\n\nAvailable Data in Google Sheets\n\nThe Google Sheet contains the following columns:\n\nRole\nName\nPhone Number\nEmail\n\nYou can read employee information from this sheet to determine who should handle the requested appointment.\n\nYour Tasks\nReceive appointment request from Telegram user\nUnderstand the following details:\nRequested Role or Employee\nDate\nTime\nPurpose of meeting\nCheck Google Sheets to:\nFind the correct employee based on Role or Name\nRetrieve employee Email and Phone Number\nIf all information is available:\nBook the appointment\nSend email notification to the employee\nSend confirmation message to the Telegram user\nIf information is missing or unclear:\nAsk the user for more details via Telegram\nEmail Notification Format\n\nSend an email to the employee including:\n\nEmployee Name\nMeeting Date\nMeeting Time\nUser Request Details\nContact Information\nTelegram Confirmation Message\n\nSend confirmation to user:\n\nExample:\n\nAppointment Confirmed ✅\n\nEmployee: John Smith\nRole: Developer\nDate: 25 April 2026\nTime: 3:00 PM\n\nThe employee has been notified via email.\n\nIf Missing Information\n\nAsk user politely:\n\nExample:\n\nI need more details to schedule your appointment.\nPlease provide:\n\nRole or Employee name\nPreferred Date\nPreferred Time\nPurpose of Meeting\nImportant Rules\nAlways check Google Sheets first\nAlways use employee email from Google Sheets\nAlways confirm booking via Telegram\nAlways ask for clarification if request is unclear\nBe professional and concise\nExpected Behavior\n\nUser Message Example:\n\n\"I want to schedule a meeting with a developer tomorrow at 3 PM\"\n\nAI Should:\n\nFind employee with Role = Developer\nGet Email from Google Sheets\nSend Email\nConfirm via Telegram\n\nThis agent acts as:\n\nSmart Appointment Scheduler\nGoogle Sheets Reader\nEmail Sender\nTelegram Assistant{{ $json.message.text }}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "794ccc94-9734-4bed-a4df-6435d48be071",
+      "name": "GPT5"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1gJhopA73b8Wp72jSAJXUAkyqY_jOVCrRnzuSRvtHt6c",
+          "mode": "list",
+          "cachedResultName": "Automate Your Business",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1gJhopA73b8Wp72jSAJXUAkyqY_jOVCrRnzuSRvtHt6c/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "الورقة1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1gJhopA73b8Wp72jSAJXUAkyqY_jOVCrRnzuSRvtHt6c/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        384,
+        240
+      ],
+      "id": "ecfc24fc-d995-4413-9d20-2227ff0577fc",
+      "name": "Employee Databaes",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "lWAlyqrMCw4YG1Xh",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "GPT5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "GPT5",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "GPT5",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create an event in Google Calendar": {
+      "ai_tool": [
+        [
+          {
+            "node": "GPT5",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Employee Notification": {
+      "ai_tool": [
+        [
+          {
+            "node": "GPT5",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GPT5": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Employee Databaes": {
+      "ai_tool": [
+        [
+          {
+            "node": "GPT5",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "ac36a3e7-7368-4337-859e-e3fd737f0b59",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "78df718bb34fde857d77cb7beed469614c1c9ff2441901d4fe2678f642e597e8"
+  },
+  "id": "XIAe7THVmui7VWi7",
+  "tags": []
+}
